@@ -19,7 +19,7 @@ def red_neuronal():
     print("\nRed Neuronal...")
     cargando_Imagenes()    
     
-    #dibujar()
+    dibujar()
 
     model = modelo()
     
@@ -34,11 +34,16 @@ def red_neuronal():
     graficar_Cuerva_Evolucion()
 
 def dibujar():
-    dibujar = plt.figure(figsize=(12, 7))
-    plt.imshow(IMAGENES[9])
-    plt.colorbar()
-    plt.grid(False)
+    dibujar = plt.figure(figsize=(7, 7))
+
+    for i in range( len(IMAGENES) ):
+        plt.subplot(10,12,i+1)
+        plt.xticks([])
+        plt.yticks([])        
+        plt.grid(False)
+        plt.imshow(IMAGENES[i])        
     plt.show()
+
 
 def cargando_Imagenes():
     print("\nCargando imagenes:")
@@ -49,11 +54,13 @@ def cargando_Imagenes():
     print("\nImagenes:")
     contaLabel = 0
     for tipo in CATEGORIAS:
-        for img in os.listdir(f"dataSet/completo/{tipo}"):        
-            imagen = Image.open(f"dataSet/completo/{tipo}/{img}").resize((100,100))
+        for img in os.listdir(f"dataSet/entrenamiento/{tipo}"):        
+            imagen = Image.open(f"dataSet/entrenamiento/{tipo}/{img}").resize((100,100))
+            imagen = imagen.convert("RGB")
             imagen = np.asarray(imagen)
-            if(len(imagen.shape)==3):
-                imagen = imagen[:,:,0]
+            print(len(imagen.shape))
+            #if(len(imagen.shape)==3):
+                #imagen = imagen[:,:,0]
             print(imagen.shape)
             
             global IMAGENES
@@ -66,7 +73,7 @@ def cargando_Imagenes():
 def modelo():
     print("\nModelo: ")
     model = tf.keras.models.Sequential([
-        tf.keras.layers.Conv2D(32,(3,3), input_shape=(100,100, 1), activation='relu'),
+        tf.keras.layers.Conv2D(32,(3,3), input_shape=(100,100, 3), activation='relu'),
         #tf.keras.layers.Flatten(input_shape=(100,100)),
         tf.keras.layers.MaxPooling2D(2,2),
         tf.keras.layers.Conv2D(64,(3,3), activation='relu'),
@@ -83,8 +90,8 @@ def modelo():
         loss='sparse_categorical_crossentropy',
         metrics=['accuracy']
     )
-    imagenes_array = np.asanyarray(IMAGENES)
-    labels_array = np.asanyarray(LABELS)
+    imagenes_array = np.asarray(IMAGENES, dtype="float32")
+    labels_array = np.asarray(LABELS, dtype="float32")
     
     return [model, imagenes_array, labels_array]
     #entrenamiento(model, imagenes_array, labels_array)
@@ -107,10 +114,12 @@ def pruebas_muestra(model):
         for img in os.listdir(f'dataSet/muestras/{tipo}'):
             print(img)
             imagen = Image.open(f'dataSet/muestras/{tipo}/{img}').resize((100,100))            
+            
+            imagen = imagen.convert('RGB')
             imagen = np.asanyarray(imagen)
             #print(imagen)
-            if(len(imagen.shape)==3):
-                imagen = imagen[:,:,0]
+            #if(len(imagen.shape)==3):
+                #imagen = imagen[:,:,0]
 
             imagen = np.array([imagen])
             print("\nerror rango:___")
@@ -134,10 +143,11 @@ def cargando_img_test_modelo():
     for tipo in categoriaTest:
         for imagen in os.listdir(f'dataSet/test/{tipo}'):
             img = Image.open(f'dataSet/test/{tipo}/{imagen}').resize((100,100))
+            img = img.convert('RGB')
             img = np.asanyarray(img)
             
-            if(len(img.shape)==3):
-                img = img[:,:,0]
+            #if(len(img.shape)==3):
+                #img = img[:,:,0]
 
             imagenes_test.append(img)
             labels_test.append(conta_test)
