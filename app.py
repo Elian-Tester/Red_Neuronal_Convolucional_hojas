@@ -19,19 +19,20 @@ def red_neuronal():
     print("\nRed Neuronal...")
     cargando_Imagenes()    
     
-    dibujar()
+    #dibujar()
 
     model = modelo()
     
     modeloEntrenado = entrenamiento(model[0], model[1], model[2])
-
-    pruebas_muestra(modeloEntrenado)
+    
 
     pred = cargando_img_test_modelo()
     
-    matrizConfusion(model[0], pred[0], pred[1])
+    matrizConfusion(model[0], pred[0], pred[1])    
     
     graficar_Cuerva_Evolucion()
+
+    pruebas_muestra(modeloEntrenado)
 
 def dibujar():
     dibujar = plt.figure(figsize=(7, 7))
@@ -47,15 +48,17 @@ def dibujar():
 
 def cargando_Imagenes():
     print("\nCargando imagenes:")
+    rutaEntrenamiento = "dataSet/entrenamientoClase/"
+    #rutaEntrenamiento = "dataSet/entrenamiento"
     global CATEGORIAS
-    CATEGORIAS = os.listdir("dataSet/entrenamiento")    
+    CATEGORIAS = os.listdir(rutaEntrenamiento)    
     print(CATEGORIAS)
 
     print("\nImagenes:")
     contaLabel = 0
     for tipo in CATEGORIAS:
-        for img in os.listdir(f"dataSet/entrenamiento/{tipo}"):        
-            imagen = Image.open(f"dataSet/entrenamiento/{tipo}/{img}").resize((100,100))
+        for img in os.listdir(f"{rutaEntrenamiento}{tipo}"):        
+            imagen = Image.open(f"{rutaEntrenamiento}{tipo}/{img}").resize((100,100))
             imagen = imagen.convert("RGB")
             imagen = np.asarray(imagen)
             print(len(imagen.shape))
@@ -112,7 +115,7 @@ def pruebas_muestra(model):
     
     for tipo in categoriaMuestra:
         for img in os.listdir(f'dataSet/muestras/{tipo}'):
-            print(img)
+            
             imagen = Image.open(f'dataSet/muestras/{tipo}/{img}').resize((100,100))            
             
             imagen = imagen.convert('RGB')
@@ -122,13 +125,14 @@ def pruebas_muestra(model):
                 #imagen = imagen[:,:,0]
 
             imagen = np.array([imagen])
-            print("\nerror rango:___")
-            print(imagen)
+            #print("\nerror rango:___")
+            #print(imagen)
             prediccion = model.predict(imagen)
-            print(prediccion)
-            print(np.argmax(prediccion))
-            print(CATEGORIAS)
-            print(CATEGORIAS[np.argmax(prediccion)])
+            #print(prediccion)
+            #print(np.argmax(prediccion))
+            print(f"> enviado: {tipo} => {CATEGORIAS[np.argmax(prediccion)]}")
+            #print(CATEGORIAS[np.argmax(prediccion)])
+            print("-----------------")
 
 def cargando_img_test_modelo():
     print("\nTest imagenes:")
@@ -161,7 +165,8 @@ def cargando_img_test_modelo():
 
 def matrizConfusion(model, test_imagen, test_label):
     print("\nMatriz confusion: ")
-    names = ['Crescentia','Epazote', 'Ixora', 'Limon', 'Platano']
+    #names = ['Crescentia','Epazote', 'Ixora', 'Limon', 'Platano']
+    names = CATEGORIAS
     y_prediccion = np.argmax(model.predict(test_imagen), axis=1)
     y_true = np.array(test_label)
 
@@ -184,7 +189,9 @@ def matrizConfusion(model, test_imagen, test_label):
     plt.show()
 
 
-def graficar_Cuerva_Evolucion():
+def graficar_Cuerva_Evolucion():    
+    print(CATEGORIAS)
+
     print("Graficando curva de error")
     fig = plt.figure(figsize=(9,5))
     plt.plot(HISTORIAL.history['loss'])
